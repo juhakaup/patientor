@@ -1,11 +1,12 @@
 import { useParams } from "react-router-dom";
-import { Patient, Gender, Entry } from "../types";
+import { Patient, Gender, Entry, Diagnose } from "../types";
 import TransgenderIcon from '@mui/icons-material/Transgender';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 
 interface Props {
     patients: Patient[];
+    diagnoses: Diagnose[];
 }
 
 const GenderIcon = (gender: string) => {
@@ -17,7 +18,7 @@ const GenderIcon = (gender: string) => {
     return <TransgenderIcon />
 }
 
-const PatientView = ({ patients }: Props) => {
+const PatientView = ({ patients, diagnoses }: Props) => {
     const id = useParams().id;
 
     const patient = patients.find(p => p.id === id);
@@ -28,7 +29,7 @@ const PatientView = ({ patients }: Props) => {
                 
                 ssn: {patient.ssn} <br />
                 occupation: {patient.occupation}
-                <EntryList entries={patient.entries} />
+                <EntryList entries={patient.entries} diagnoses={diagnoses}/>
             </div>
         )  
     }
@@ -37,19 +38,20 @@ const PatientView = ({ patients }: Props) => {
 
 interface EntryListProps {
     entries: Entry[];
+    diagnoses: Diagnose[];
 }
 
-const EntryList = ({ entries }: EntryListProps) => {
+const EntryList = ({ entries, diagnoses }: EntryListProps) => {
     return (
         <div>
             <h3>entries</h3>
-            {entries.map(entry => (
-                <>
+            {entries.map((entry) => (
+                <div key={entry.id}>
                 <p>{entry.date} <i>{entry.description}</i></p>
                 <ul>
-                    {entry.diagnosisCodes?.map(code => (<li>{code}</li>))}
+                    {entry.diagnosisCodes?.map((code, index) => (<li key={index}>{code} {diagnoses.find(d => d.code === code)?.name}</li>))}
                 </ul>
-                </>
+                </div>
             ))}
         </div>
     )
