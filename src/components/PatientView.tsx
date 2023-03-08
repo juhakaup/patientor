@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Patient, Gender } from "../types";
+import { Patient, Gender, Entry } from "../types";
 import TransgenderIcon from '@mui/icons-material/Transgender';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
@@ -28,10 +28,31 @@ const PatientView = ({ patients }: Props) => {
                 
                 ssn: {patient.ssn} <br />
                 occupation: {patient.occupation}
+                <EntryList entries={patient.entries} />
             </div>
         )  
     }
     return (<></>)
+}
+
+interface EntryListProps {
+    entries: Entry[];
+}
+
+const EntryList = ({ entries }: EntryListProps) => {
+    return (
+        <div>
+            <h3>entries</h3>
+            {entries.map(entry => (
+                <>
+                <p>{entry.date} <i>{entry.description}</i></p>
+                <ul>
+                    {entry.diagnosisCodes?.map(code => (<li>{code}</li>))}
+                </ul>
+                </>
+            ))}
+        </div>
+    )
 }
 
 export default PatientView;
