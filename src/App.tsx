@@ -11,6 +11,8 @@ import PatientListPage from "./components/PatientListPage";
 import PatientView from "./components/PatientView";
 import diagnosisService from "./services/diagnoses";
 
+import "./app.css";
+
 const App = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [diagnoses, setDiagnoses] = useState<Diagnose[]>([]);
