@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Patient, Gender, Entry, Diagnose } from "../../types";
+import { Patient, Gender, Entry, Diagnose, EntryWithoutId } from "../../types";
 import TransgenderIcon from '@mui/icons-material/Transgender';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
@@ -7,10 +7,17 @@ import HospitalEntryDetails from "./HospitalEntry";
 import HealthCheckEntryDetails from "./HealthCheckEntry";
 import OccupationalHealthcareDetails from "./OccupationalHealthcareEntry";
 import {assertNever} from "assert-never";
+import HealtCheckForm from "./HealthCheckForm";
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import { useState } from "react";
+import patientService from '../../services/patients';
+import { Alert } from "@mui/material";
 
 interface Props {
     patients: Patient[];
     diagnoses: Diagnose[];
+    setPatients: React.Dispatch<React.SetStateAction<Patient[]>>;
 }
 
 const GenderIcon = (gender: string) => {
@@ -22,17 +29,46 @@ const GenderIcon = (gender: string) => {
     return <TransgenderIcon />
 }
 
-const PatientView = ({ patients, diagnoses }: Props) => {
+const PatientView = ({ patients, diagnoses, setPatients }: Props) => {
     const id = useParams().id;
+    const [selectedTab] = useState(0);
+    const [error, setError] = useState<string>();
 
     const patient = patients.find(p => p.id === id);
+
+    const submitEntry = async (entry: EntryWithoutId) => {
+        try {
+            if (entry && id) {
+                const result = await patientService.createEntry(id, entry);
+                if (result && patient) {
+                    const newPatient = {...patient, entries: patient.entries.concat(result)};
+                    const newPatients = patients.map(pat => pat.id === id ? newPatient : pat)
+                    setPatients(newPatients);
+                }
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                console.log(error)
+                setError(error.toString());
+            }
+        }
+        
+    }
+
     if (patient) {
         return (
             <div>
                 <h2>{patient.name} {GenderIcon(patient.gender)}</h2>
-                
                 ssn: {patient.ssn} <br />
                 occupation: {patient.occupation}
+                <h2>Add new Entry:</h2>
+                {error && <Alert severity="error">{error}</Alert>}
+                <Tabs value={selectedTab} >
+                    <Tab label="Healthcheck" />
+                    {/* <Tab label="Hospital" /> */}
+                    {/* <Tab label="Occupational" /> */}
+                </Tabs>
+                { selectedTab === 0 && <HealtCheckForm submitEntry={submitEntry} /> }
                 <EntryList entries={patient.entries} diagnoses={diagnoses}/>
             </div>
         )  

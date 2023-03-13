@@ -4,3 +4,17 @@
     margin: 10px 0;
     padding: 0 10px;
   }
+
+  .entryForm {
+    display: flex;
+    flex-direction: column;
+    width: 99%;
+    margin: 15px 0;
+  }
+
+  .form {
+    border: 1px dotted black;
+    border-radius: 10px;
+    margin: 10px 0;
+    padding: 0 0 20px 10px;
+  }
