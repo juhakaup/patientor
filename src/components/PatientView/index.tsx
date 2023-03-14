@@ -84,9 +84,9 @@ const PatientView = ({ patients, diagnoses, setPatients }: Props) => {
                         <Tab label="Hospital" />
                         <Tab label="Occupational" />
                     </Tabs>
-                    { selectedTab === 0 && <HealtCheckForm submitEntry={submitEntry} cancelEntry={cancelEntry} /> }
-                    { selectedTab === 1 && <HospitalForm submitEntry={submitEntry} cancelEntry={cancelEntry} /> }
-                    { selectedTab === 2 && <OccupationalHealthcareForm submitEntry={submitEntry} cancelEntry={cancelEntry} /> }
+                    { selectedTab === 0 && <HealtCheckForm submitEntry={submitEntry} cancelEntry={cancelEntry} diagnosisCodes={diagnoses}/> }
+                    { selectedTab === 1 && <HospitalForm submitEntry={submitEntry} cancelEntry={cancelEntry} diagnosisCodes={diagnoses} /> }
+                    { selectedTab === 2 && <OccupationalHealthcareForm submitEntry={submitEntry} cancelEntry={cancelEntry} diagnosisCodes={diagnoses} /> }
                     </div>
                     : <Button variant="contained" onClick={event => {setShowEntryForm(true)}}>New entry</Button> }
                 <EntryList entries={patient.entries} diagnoses={diagnoses}/>

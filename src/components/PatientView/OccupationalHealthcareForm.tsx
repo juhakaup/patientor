@@ -1,20 +1,21 @@
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
-import { EntryWithoutId } from '../../types';
+import { EntryWithoutId, Diagnose } from '../../types';
 import { Stack } from '@mui/system';
-import { Typography } from '@mui/material';
+import { Typography, Autocomplete } from '@mui/material';
 
 interface Props {
     submitEntry: (entry: EntryWithoutId) => Promise<boolean>;
     cancelEntry: () => void;
+    diagnosisCodes: Diagnose[];
 }
 
-const OccupationalHealthcareForm = ({ submitEntry, cancelEntry }: Props) => {
+const OccupationalHealthcareForm = ({ submitEntry, cancelEntry, diagnosisCodes }: Props) => {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
     const [specialist, setSpecialist] = useState('');
-    const [diagnosis, setDiagnosis] = useState('');
+    const [selectedDiagnoses, setSelectedDiagnoses] = useState<Diagnose[]>([]);
     const [employer, setEmployer] = useState('');
     const [sickleaveStartDate, setSickleaveStartDate] = useState('');
     const [sickleaveEndDate, setSickleaveEndDate] = useState('');
@@ -26,7 +27,7 @@ const OccupationalHealthcareForm = ({ submitEntry, cancelEntry }: Props) => {
             description: description,
             date: date,
             specialist: specialist,
-            diagnosisCodes: diagnosis.split(','),
+            diagnosisCodes: selectedDiagnoses.map(diag => diag.code),
             employerName: employer,
             sickleave: { startDate: sickleaveStartDate, endDate: sickleaveEndDate }
         }
@@ -36,7 +37,7 @@ const OccupationalHealthcareForm = ({ submitEntry, cancelEntry }: Props) => {
             setDescription('');
             setDate('');
             setSpecialist('');
-            setDiagnosis('');
+            setSelectedDiagnoses([]);
             setEmployer('');
             setSickleaveStartDate('');
             setSickleaveEndDate('');
@@ -56,10 +57,14 @@ const OccupationalHealthcareForm = ({ submitEntry, cancelEntry }: Props) => {
                     />
                     <TextField
                         id="occupational-date"
+                        type="date"
                         label="Date"
                         value={date}
                         variant="standard"
                         onChange={(event) => setDate(event.target.value)}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
                     />
                     <TextField
                         id="occupational-special"
@@ -68,12 +73,20 @@ const OccupationalHealthcareForm = ({ submitEntry, cancelEntry }: Props) => {
                         variant="standard"
                         onChange={(event) => setSpecialist(event.target.value)}
                     />
-                    <TextField
-                        id="occupational-diag"
-                        label="Diagnosis codes"
-                        value={diagnosis}
-                        variant="standard"
-                        onChange={(event) => setDiagnosis(event.target.value)}
+                    <Autocomplete
+                        multiple
+                        id="tags-standard"
+                        options={diagnosisCodes}
+                        getOptionLabel={(option) => `${option.code} - ${option.name}`}
+                        defaultValue={[]}
+                        onChange={(event, newValue) => {setSelectedDiagnoses(newValue)}}
+                        renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            variant="standard"
+                            label="Diagnosis codes"
+                        />
+                        )}
                     />
                     <TextField
                         id="occupational-employer"
@@ -93,14 +106,22 @@ const OccupationalHealthcareForm = ({ submitEntry, cancelEntry }: Props) => {
                                 label="start date"
                                 value={sickleaveStartDate}
                                 variant="standard"
+                                type="date"
                                 onChange={(event) => setSickleaveStartDate(event.target.value)}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
                             />
                             <TextField
                                 id="occupational-enddate"
                                 label="end date"
                                 value={sickleaveEndDate}
                                 variant="standard"
+                                type="date"
                                 onChange={(event) => setSickleaveEndDate(event.target.value)}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
                             />
                         </Stack>
                     </div>
