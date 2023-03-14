@@ -11,10 +11,13 @@ const HospitalEntryDetails = ({ entry, diagnoses }: Props) => {
         <div id="entry">
             <p>{entry.date} <LocalHospitalIcon/> </p> 
             <i>{entry.description}</i>
+
             <p>diagnose by {entry.specialist}</p>
             <ul>
                 {entry.diagnosisCodes?.map((code, index) => (<li key={index} id={index.toString()}>{code} {diagnoses.find(d => d.code === code)?.name}</li>))}
             </ul>
+            <h4>Discharge</h4>
+            <p>date: {entry.discharge.date} - criteria: {entry.discharge.criteria}</p>
         </div>
     )
 }

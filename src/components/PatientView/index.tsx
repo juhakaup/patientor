@@ -12,7 +12,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { useState } from "react";
 import patientService from '../../services/patients';
-import { Alert } from "@mui/material";
+import { Alert, Button, Typography } from "@mui/material";
+import HospitalForm from "./HospitalEntryForm";
+import OccupationalHealthcareForm from "./OccupationalHealthcareForm";
 
 interface Props {
     patients: Patient[];
@@ -31,12 +33,13 @@ const GenderIcon = (gender: string) => {
 
 const PatientView = ({ patients, diagnoses, setPatients }: Props) => {
     const id = useParams().id;
-    const [selectedTab] = useState(0);
+    const [selectedTab, setSelectedTab] = useState(0);
     const [error, setError] = useState<string>();
+    const [showEntryForm, setShowEntryForm] = useState(false);
 
     const patient = patients.find(p => p.id === id);
 
-    const submitEntry = async (entry: EntryWithoutId) => {
+    const submitEntry = async (entry: EntryWithoutId): Promise<boolean> => {
         try {
             if (entry && id) {
                 const result = await patientService.createEntry(id, entry);
@@ -44,15 +47,23 @@ const PatientView = ({ patients, diagnoses, setPatients }: Props) => {
                     const newPatient = {...patient, entries: patient.entries.concat(result)};
                     const newPatients = patients.map(pat => pat.id === id ? newPatient : pat)
                     setPatients(newPatients);
+                    return true;
                 }
             }
         } catch (error) {
             if (error instanceof Error) {
-                console.log(error)
                 setError(error.toString());
             }
         }
-        
+        return false;
+    }
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        setSelectedTab(newValue);
+      };
+
+    const cancelEntry = () => {
+        setShowEntryForm(false);
     }
 
     if (patient) {
@@ -60,15 +71,24 @@ const PatientView = ({ patients, diagnoses, setPatients }: Props) => {
             <div>
                 <h2>{patient.name} {GenderIcon(patient.gender)}</h2>
                 ssn: {patient.ssn} <br />
-                occupation: {patient.occupation}
-                <h2>Add new Entry:</h2>
-                {error && <Alert severity="error">{error}</Alert>}
-                <Tabs value={selectedTab} >
-                    <Tab label="Healthcheck" />
-                    {/* <Tab label="Hospital" /> */}
-                    {/* <Tab label="Occupational" /> */}
-                </Tabs>
-                { selectedTab === 0 && <HealtCheckForm submitEntry={submitEntry} /> }
+                occupation: {patient.occupation} <br />
+                <br />
+                {showEntryForm 
+                    ? 
+                    <div>
+                    <hr />
+                    <Typography variant="h6">Add new Entry:</Typography>    
+                    {error && <Alert severity="error">{error}</Alert>}
+                    <Tabs value={selectedTab} onChange={handleTabChange}>
+                        <Tab label="Healthcheck" />
+                        <Tab label="Hospital" />
+                        <Tab label="Occupational" />
+                    </Tabs>
+                    { selectedTab === 0 && <HealtCheckForm submitEntry={submitEntry} cancelEntry={cancelEntry} /> }
+                    { selectedTab === 1 && <HospitalForm submitEntry={submitEntry} cancelEntry={cancelEntry} /> }
+                    { selectedTab === 2 && <OccupationalHealthcareForm submitEntry={submitEntry} cancelEntry={cancelEntry} /> }
+                    </div>
+                    : <Button variant="contained" onClick={event => {setShowEntryForm(true)}}>New entry</Button> }
                 <EntryList entries={patient.entries} diagnoses={diagnoses}/>
             </div>
         )  

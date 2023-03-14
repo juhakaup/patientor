@@ -1,37 +1,32 @@
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
-import { EntryWithoutId, HealthCheckRating } from '../../types';
+import { EntryWithoutId } from '../../types';
 import { Stack } from '@mui/system';
+import { Typography } from '@mui/material';
 
 interface Props {
     submitEntry: (entry: EntryWithoutId) => Promise<boolean>;
     cancelEntry: () => void;
 }
 
-const parseHealthCheckrating = (rating: string) => {
-    if (rating || !isNaN(Number(rating)) ) {
-        return Number(rating) as HealthCheckRating;
-    }
-    return HealthCheckRating.Healthy;
-}
-
-const HealtCheckForm = ({ submitEntry, cancelEntry }: Props) => {
+const HospitalForm = ({ submitEntry, cancelEntry }: Props) => {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
     const [specialist, setSpecialist] = useState('');
-    const [rating, setRating] = useState('');
     const [diagnosis, setDiagnosis] = useState('');
+    const [dischargeDate, setDischargeDate] = useState('');
+    const [dischargeCriteria, setDischargeCriteria] = useState('');
     
     const entryCreation = async (event: React.SyntheticEvent) => {
         event.preventDefault();
         const newEntry = {
-            type: "HealthCheck",
+            type: "Hospital",
             description: description,
             date: date,
             specialist: specialist,
-            healthCheckRating: parseHealthCheckrating(rating),
-            diagnosisCodes: diagnosis.split(',')
+            diagnosisCodes: diagnosis.split(','),
+            discharge: { date: dischargeDate, criteria: dischargeCriteria }
         }
 
         const success = await submitEntry(newEntry as EntryWithoutId)
@@ -40,50 +35,65 @@ const HealtCheckForm = ({ submitEntry, cancelEntry }: Props) => {
             setDate('');
             setSpecialist('');
             setDiagnosis('');
-            setRating('');
+            setDischargeDate('');
+            setDischargeCriteria('');
         }
     }
     return (
         <div className='form'>
-            <h3>New health check entry</h3>
+            <h3>New hospital entry</h3>
             <form onSubmit={entryCreation}>
                 <div className="entryForm">
                     <TextField
-                        id="healthceck-desc"
+                        id="hospital-desc"
                         label="Description"
-                        value={description}
+                        defaultValue={description}
                         variant="standard"
                         onChange={(event) => setDescription(event.target.value)}
                     />
                     <TextField
-                        id="healthceck-date"
+                        id="hospital-date"
                         label="Date"
                         value={date}
                         variant="standard"
                         onChange={(event) => setDate(event.target.value)}
                     />
                     <TextField
-                        id="healthceck-special"
+                        id="hospital-special"
                         label="Specialist"
                         value={specialist}
                         variant="standard"
                         onChange={(event) => setSpecialist(event.target.value)}
                     />
                     <TextField
-                        id="healthceck-diag"
+                        id="hospital-diag"
                         label="Diagnosis codes"
                         value={diagnosis}
                         variant="standard"
                         onChange={(event) => setDiagnosis(event.target.value)}
                     />
-                    <TextField
-                        id="healthceck-rating"
-                        label="Healthcheck rating"
-                        value={rating}
-                        variant="standard"
-                        type="number"
-                        onChange={(event) => setRating(event.target.value)}
-                    />
+                    <div className='form-group'>
+
+                        <Typography variant="subtitle1" sx={{color: 'gray'}}>
+                            Discharge:
+                        </Typography>
+                        <Stack direction="row" spacing={2}>
+                            <TextField
+                                id="hospital-dischargedate"
+                                label="Discharge date"
+                                value={dischargeDate}
+                                variant="standard"
+                                onChange={(event) => setDischargeDate(event.target.value)}
+                            />
+                            <TextField
+                                id="hospital-dischargecriteria"
+                                label="Criteria"
+                                value={dischargeCriteria}
+                                variant="standard"
+                                onChange={(event) => setDischargeCriteria(event.target.value)}
+                            />
+                        </Stack>
+                    </div>
                 </div>
                 <Stack direction="row" spacing={5}>
                     <Button variant="contained" color="success" type='submit'>Add</Button>
@@ -94,4 +104,4 @@ const HealtCheckForm = ({ submitEntry, cancelEntry }: Props) => {
     )
 }
 
-export default HealtCheckForm;
+export default HospitalForm;
